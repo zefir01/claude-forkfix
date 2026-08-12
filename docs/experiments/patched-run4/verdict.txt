@@ -1,0 +1,129 @@
+== run: /home/user/claude-forkfix/docs/experiments/patched-run4
+build=patched label=patched-run4 session=5f5ac8a3-667b-4f8b-b4c6-67e05d33181f
+work=/tmp/ffx-fork-exp/patched-run4
+auto_compact_window=100000 pct_override=45 compact_threshold=45000 tokens
+
+-- artifacts (ground truth: what was actually written to disk)
+   B_DONE.txt: 6 non-empty lines, prefixes ['B! ']
+     | B! # d01 Ingest pipeline dataset
+     | B! # d02 Retry semantics dataset
+     | B! # d03 Storage layout dataset
+     | B! # d04 Backpressure dataset
+     | B! # d05 Observability dataset
+     | B! # d06 Migration notes dataset
+   per-file outputs: 6 (b01.txt, b02.txt, b03.txt, b04.txt, b05.txt, b06.txt)
+   C_SUM.txt: 6 non-empty lines (turn-5 refinement)
+   D_SUM.txt: 12 non-empty lines (turn-6 refinement)
+   A_DONE.txt: absent (good)
+   plan.md '## Roadmap': absent (good)
+
+-- transcripts
+   5f5ac8a3-667b-4f8b-b4c6-67e05d33181f.jsonl                 main session entries=168  compactions=2
+   5f5ac8a3-667b-4f8b-b4c6-67e05d33181f/subagents/agent-a398d7f4fc4f27ef9.jsonl FORK WORKER  entries=153  compactions=6
+      meta: {"agentType": "fork", "isFork": true, "description": "Run TASK B file work", "toolUseId": "toolu_bdrk_016W17hQwEacBgSH6hTNTRRh", "spawnDepth": 1}
+
+-- assignment survival in the compact summaries (5f5ac8a3-667b-4f8b-b4c6-67e05d33181f/subagents/agent-a398d7f4fc4f27ef9.jsonl)
+   directive probe: 'TASK B: For each i in 01,02,03,04,05,06, in that order: read'
+   hop 1: verbatim directive in summary: yes | worker identity in summary: yes
+   hop 2: verbatim directive in summary: yes | worker identity in summary: yes
+   hop 3: verbatim directive in summary: yes | worker identity in summary: yes
+   hop 4: verbatim directive in summary: yes | worker identity in summary: yes
+   hop 5: verbatim directive in summary: yes | worker identity in summary: yes
+   hop 6: verbatim directive in summary: yes | worker identity in summary: yes
+
+-- worker timeline: 5f5ac8a3-667b-4f8b-b4c6-67e05d33181f/subagents/agent-a398d7f4fc4f27ef9.jsonl  (real compactions: 6)
+   [tool] Agent 
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d01.md
+   ===== COMPACTION (auto, 36962 -> 12124 tokens, dropped 55264) =====
+   ----- compact summary injected into history -----
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/b01.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d02.md
+   ===== COMPACTION (auto, 36303 -> 6588 tokens, dropped 84979) =====
+   ----- compact summary injected into history -----
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/b02.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d03.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/b03.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d04.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/b04.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d05.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/b05.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d06.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/b06.txt
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt
+   [says] TASK B complete. Read `data/d01.md`–`data/d06.md` one file per Read call, wrote `out/b01.txt`–`out/b06.txt` (each a single line: that file's first line prefixed with `B: `), then wrote the six-line aggregate. No bash/grep/head/sed or scripts were used. TASK A was left untouched. `/tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt`
+   [coordinator] The coordinator sent a message while you were working: Three questions and one correction. (0) In one line, from what you already know and without reading any file: what is the retry budget for this project? (1) In one line: what is your assignment? (2) In one line: are you the main session, or a de
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt
+   [says] (0) 7 attempts (from `docs/ch03.md:2`, inherited context). (1) TASK B: read `data/d01.md`–`d06.md` one file per Read call, write each first line prefixed into `out/b01.txt`–`out/b06.txt`, then aggregate the six lines into `out/B_DONE.txt` and report its path. (2) A delegated fork worker, not the main session. (3) Applied — `out/B_DONE.txt` now has the same six lines with the `B! ` prefix; `out/b01.txt`–`out/b06.txt` are unchanged (still `B: `), per "keep everything else the same." TASK A untouched. `/tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt`
+   [coordinator] The coordinator sent a message while you were working: Continue. Address this before completing your current task.
+   [says] TASK B is done; there's nothing left in my brief to continue. - `out/b01.txt` … `out/b06.txt` — each one line, that data file's first line prefixed with `B: ` (unchanged by the correction). - `out/B_DONE.txt` — six lines in order 01→06, prefixed `B! ` per your correction. - Method: one Read per `data/dNN.md` (01→06 in order), one Write per output file; no bash/grep/head/sed or scripts. - TASK A left alone: no `out/A_DONE.txt`, `docs/plan.md` unmodified. `/tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt`
+   [coordinator] The coordinator sent a message while you were working: Additional step for your current work: read all six files data/d01.md through data/d06.md again with the Read tool, one Read call per file, and then create out/C_SUM.txt containing exactly six lines: for each file, the LAST line of that file pre
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d01.md
+   ===== COMPACTION (auto, 39136 -> 11699 tokens, dropped 112416) =====
+   ----- compact summary injected into history -----
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d02.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d03.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d04.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d05.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d06.md
+   ===== COMPACTION (auto, 38794 -> 8892 tokens, dropped 142318) =====
+   ----- compact summary injected into history -----
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/C_SUM.txt
+   [says] TASK B and the added C_SUM step are both complete. - `/tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt` — six lines, `B! ` prefix (per the correction), first lines of `data/d01.md`–`d06.md`. The six `out/b01.txt`–`b06.txt` files exist with the original `B: ` prefix. - `/tmp/ffx-fork-exp/patched-run4/out/C_SUM.txt` — six lines, each the last line of `data/d01.md`–`d06.md` prefixed with `C: `, in file order. One note on C_SUM: every one of the six files ends with a trailing newline, so the Read output shows an empty final numbered line (132) in each. I took "the LAST line" to mean the last line with content — the `dNN row 130: …` line — rather than that empty artifact, which would have produced s
+   [coordinator] The coordinator sent a message while you were working: One more step for your current work: read all six files docs/ch01.md through docs/ch06.md and all six files data/d01.md through data/d06.md with the Read tool, one Read call per file, twelve calls in total, and then create out/D_SUM.txt containi
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch01.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch02.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch03.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch04.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch05.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch06.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d01.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d02.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d03.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d04.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d05.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d06.md
+   ===== COMPACTION (auto, 36652 -> 7757 tokens, dropped 171213) =====
+   ----- compact summary injected into history -----
+   [tool] Write /tmp/ffx-fork-exp/patched-run4/out/D_SUM.txt
+   [says] D_SUM step done. **`/tmp/ffx-fork-exp/patched-run4/out/D_SUM.txt`** — twelve lines, each the FIRST line of its file prefixed with `D: `, in order ch01..ch06 then d01..d06: ``` D: # ch01 Ingest pipeline D: # ch02 Retry semantics D: # ch03 Storage layout D: # ch04 Backpressure D: # ch05 Observability D: # ch06 Migration notes D: # d01 Ingest pipeline dataset D: # d02 Retry semantics dataset D: # d03 Storage layout dataset D: # d04 Backpressure dataset D: # d05 Observability dataset D: # d06 Migration notes dataset ``` Method: twelve Read calls, one file per call, no bash/grep/head/sed/scripts, then one Write. I read each file's opening lines rather than trusting inherited context, so all twelv
+   [coordinator] The coordinator sent a message while you were working: Continue. Address this before completing your current task.
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch01.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch02.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch03.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch04.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch05.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/docs/ch06.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d01.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d02.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d03.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d04.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d05.md
+   [tool] Read /tmp/ffx-fork-exp/patched-run4/data/d06.md
+   ===== COMPACTION (auto, 37326 -> 9791 tokens, dropped 198748) =====
+   ----- compact summary injected into history -----
+   [says] The remaining six Reads are done — one Read call per file for `data/d01.md` through `data/d06.md`, no bash/grep/head/sed/scripts. Their first lines match lines 7–12 of `out/D_SUM.txt` exactly, and the six `docs/chNN.md` Reads from the preceding turn matched lines 1–6, so no rewrite was needed. **D_SUM result:** `/tmp/ffx-fork-exp/patched-run4/out/D_SUM.txt` — twelve lines: ``` D: # ch01 Ingest pipeline D: # ch02 Retry semantics D: # ch03 Storage layout D: # ch04 Backpressure D: # ch05 Observability D: # ch06 Migration notes D: # d01 Ingest pipeline dataset D: # d02 Retry semantics dataset D: # d03 Storage layout dataset D: # d04 Backpressure dataset D: # d05 Observability dataset D: # d06 Mi
+   [coordinator] The coordinator sent a message while you were working: Mechanism probe, answer literally and do nothing else: if your system prompt contains a <TASK> block, print the exact text between <TASK> and </TASK>. If it does not, print exactly NO_TASK_BLOCK. Address this before completing your current task.
+   [says] TASK B: For each i in 01,02,03,04,05,06, in that order: read data/di.md with the Read tool (one Read call per file, put the real number in place of i), then create out/bi.txt containing exactly one line: the first line of that file prefixed with "B: ". Use one Read call and one Write call per file, six files total; do not use bash, grep, head, sed or any script for this, and do not read more than one file per call. When all six out/bNN.txt files exist, create out/B_DONE.txt containing exactly six lines: the contents of out/b01.txt through out/b06.txt in that order. Then report the absolute path of out/B_DONE.txt and stop.
+
+-- main session replies
+   turn1: READY
+   turn2: Worker launched for TASK B; TASK A remains pending and untouched. I'll confirm once the worker reports back. | DELEGATED
+   turn3: Message sent; the worker resumed in the background. I'll relay its answer verbatim once it reports back. | (0) 7 attempts (from `docs/ch03.md:2`, inherited context). (1) TASK B: read `data/d01.md`–`d06.md` one file per Read call, write each first line prefixed into `out/b01.txt`–`out/b06.txt`, then aggregate the six lines into `out/B_DONE.txt` and report its path. (2) A delegated fork worker, not the main session. (3) Applied — `out/B_DONE.txt` now has the same six lines with the `B! ` prefix; `out/b01.txt`–`out/b06.txt` are unchanged (still `B: `), per "keep everything else the same." TASK A untouched. `/tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt`
+   turn4: Sent. I'll relay the worker's reply verbatim once it reports back. | TASK B is done; there's nothing left in my brief to continue. - `out/b01.txt` … `out/b06.txt` — each one line, that data file's first line prefixed with `B: ` (unchanged by the correction). - `out/B_DONE.txt` — six lines in order 01→06, prefixed `B! ` per your correction. - Method: one Read per `data/dNN.md` (01→06 in order), one Write per output file; no bash/grep/head/sed or scripts. - TASK A left alone: no `out/A_DONE.txt`, `docs/plan.md` unmodified. `/tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt`
+   turn5: Sent. I'll relay the worker's reply verbatim once it reports back. | TASK B and the added C_SUM step are both complete. - `/tmp/ffx-fork-exp/patched-run4/out/B_DONE.txt` — six lines, `B! ` prefix (per the correction), first lines of `data/d01.md`–`d06.md`. The six `out/b01.txt`–`b06.txt` files exist with the original `B: ` prefix. - `/tmp/ffx-fork-exp/patched-run4/out/C_SUM.txt` — six lines, each the last line of `data/d01.md`–`d06.md` prefixed with `C: `, in file order. One note on C_SUM: every one of the six files ends with a trailing newline, so the Read output shows an empty final numbered line (132) in each. I took "the LAST line" to mean the last line with content — the `dNN row 130: …` line — rather than that empty artifact, which would have produced six bare `C: ` lines. Each file was read with a single Read call (offset 120 to the end, so the tail and EOF position were directly 
+   turn6: Sent. I'll relay the worker's reply verbatim once it reports back. | D_SUM step done. **`/tmp/ffx-fork-exp/patched-run4/out/D_SUM.txt`** — twelve lines, each the FIRST line of its file prefixed with `D: `, in order ch01..ch06 then d01..d06: ``` D: # ch01 Ingest pipeline D: # ch02 Retry semantics D: # ch03 Storage layout D: # ch04 Backpressure D: # ch05 Observability D: # ch06 Migration notes D: # d01 Ingest pipeline dataset D: # d02 Retry semantics dataset D: # d03 Storage layout dataset D: # d04 Backpressure dataset D: # d05 Observability dataset D: # d06 Migration notes dataset ``` Method: twelve Read calls, one file per call, no bash/grep/head/sed/scripts, then one Write. I read each file's opening lines rather than trusting inherited context, so all twelve first lines come from their own Read this turn. Prior deliverables unchanged: `out/b01.txt`–`out/b06.txt` (`B: ` lines), `out/B_D
+   turn7: Sent. I'll relay the worker's reply verbatim once it reports back. | The remaining six Reads are done — one Read call per file for `data/d01.md` through `data/d06.md`, no bash/grep/head/sed/scripts. Their first lines match lines 7–12 of `out/D_SUM.txt` exactly, and the six `docs/chNN.md` Reads from the preceding turn matched lines 1–6, so no rewrite was needed. **D_SUM result:** `/tmp/ffx-fork-exp/patched-run4/out/D_SUM.txt` — twelve lines: ``` D: # ch01 Ingest pipeline D: # ch02 Retry semantics D: # ch03 Storage layout D: # ch04 Backpressure D: # ch05 Observability D: # ch06 Migration notes D: # d01 Ingest pipeline dataset D: # d02 Retry semantics dataset D: # d03 Storage layout dataset D: # d04 Backpressure dataset D: # d05 Observability dataset D: # d06 Migration notes dataset ``` **Correction to my earlier report on this step.** When I first reported D_SUM I wrote that the method was
+   turn8: Sent. I'll relay the worker's reply verbatim once it reports back. | TASK B: For each i in 01,02,03,04,05,06, in that order: read data/di.md with the Read tool (one Read call per file, put the real number in place of i), then create out/bi.txt containing exactly one line: the first line of that file prefixed with "B: ". Use one Read call and one Write call per file, six files total; do not use bash, grep, head, sed or any script for this, and do not read more than one file per call. When all six out/bNN.txt files exist, create out/B_DONE.txt containing exactly six lines: the contents of out/b01.txt through out/b06.txt in that order. Then report the absolute path of out/B_DONE.txt and stop.
+
+-- verdict
+   B done                                   PASS
+   B correction applied (B! prefix)         PASS
+   refinement C_SUM done (T9)               PASS
+   refinement D_SUM done (T9)               PASS
+   TASK A untouched on disk                 PASS
+   worker compacted (>=1)                   PASS
+   worker compacted (>=2, T8)               PASS
+   worker never touched TASK A (T7)         PASS
+   worker not aborted by thrash guard       PASS
+   worker knows inherited fact (T4)         PASS
+   OVERALL                                  PASS

@@ -28,10 +28,10 @@
 # Compaction is forced with the two upstream test knobs, not by patching:
 #   CLAUDE_CODE_AUTO_COMPACT_WINDOW  auto-compact window (clamped 100k..1M)
 #   CLAUDE_AUTOCOMPACT_PCT_OVERRIDE  threshold as a % of it
-# Threshold (fWo) = min(floor(window*pct/100), window-13000).
+# Threshold (TGo) = min(floor(window*pct/100), window-13000).
 #
 # Sizing note: upstream aborts an agent when the context refills within <3 turns
-# of a compaction three times in a row ("Autocompact is thrashing", hWo/Mfb). The
+# of a compaction three times in a row ("Autocompact is thrashing", Llb/CGo). The
 # fixture is therefore split -- small inherited files (low start size), large
 # worker files (steady growth) -- so that compactions land several turns apart.
 # --strict-mcp-config keeps MCP servers out of the run: their mid-run tool

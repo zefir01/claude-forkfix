@@ -3,7 +3,7 @@
 # self-report: what exactly is handed to the API as the fork's system prompt?
 #
 # Both builds are instrumented identically by scripts/make-debug-tree.py, which
-# wraps the two `systemPrompt:Ut` sites in Z5 -- i.e. the value that becomes the
+# wraps the two `systemPrompt:sr` sites in $W -- i.e. the value that becomes the
 # query loop's `systemPrompt` and is reused for every turn of that agent. The
 # instrumentation is diagnostic-only, is not part of patches/, and is a no-op
 # unless FFX_DEBUG_FILE is set.

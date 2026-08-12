@@ -14,12 +14,12 @@ rc=0
 
 python3 "$FFX_ROOT/scripts/extract-bundle.py" "$TMP/raw.js" >/dev/null || { echo "  FAIL extract"; exit 1; }
 
-# (a) mutate 3 bytes inside the Z5 target line
+# (a) mutate 3 bytes inside the $W target line
 python3 - "$TMP/raw.js" "$TMP/raw-bad.js" <<'PY'
 import sys
 s = open(sys.argv[1], encoding='utf-8').read()
-a = "St=d?.systemPrompt?d.systemPrompt:of(await _Eb(e,r,ie,Je)),"
-s = s.replace(a, a.replace("_Eb(e,r,ie,Je)", "_Eb(e,r,ie,JX)"), 1)
+a = "at=d?.systemPrompt?d.systemPrompt:lf(await Cgv(e,r,ie,ft)),"
+s = s.replace(a, a.replace("Cgv(e,r,ie,ft)", "Cgv(e,r,ie,fX)"), 1)
 open(sys.argv[2], 'w', encoding='utf-8').write(s)
 PY
 out="$(python3 "$FFX_ROOT/scripts/normalize-bundle.py" "$TMP/raw-bad.js" "$TMP/x.js" 2>&1)"
@@ -36,9 +36,9 @@ python3 - "$TMP/$TARGET" <<'PY'
 import sys
 p = sys.argv[1]
 s = open(p, encoding='utf-8').read()
-a = "Je=Array.from(U.additionalWorkingDirectories.keys()),"
+a = "ft=Array.from(B.additionalWorkingDirectories.keys()),"
 assert s.count(a) == 1
-s = s.replace(a, "Je=Array.from(U.additionalWorkingDirectories.keys() ),", 1)
+s = s.replace(a, "ft=Array.from(B.additionalWorkingDirectories.keys() ),", 1)
 open(p, 'w', encoding='utf-8').write(s)
 PY
 cp "$TMP/$TARGET" "$TMP/fuzzy-$TARGET"

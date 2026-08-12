@@ -12,7 +12,7 @@ runtime/
 # Third-party payload: the npm tarball of the pinned Claude Code version, kept
 # only as a reference for the installer/version metadata (the JS bundle is not
 # in it — it lives in the single-file binary). Restore with
-#   npm pack @anthropic-ai/claude-code@2.1.228
+#   npm pack @anthropic-ai/claude-code@2.1.229
 upstream/
 
 # Raw experiment streams are deliberately NOT published: they are verbatim

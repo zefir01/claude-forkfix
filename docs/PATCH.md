@@ -1,24 +1,24 @@
 # The patch: call/data flow, root cause, and what exactly changes
 
-Everything below refers to Claude Code **2.1.228**, symbol names as they appear in
+Everything below refers to Claude Code **2.1.229**, symbol names as they appear in
 the bundle extracted from the stock binary
 (`build/cli-extract-raw.js`, reproducible via `scripts/extract-bundle.py`).
 
 ## 1. How the installation is packaged
 
-`~/.local/bin/claude` is a symlink to `~/.local/share/claude/versions/2.1.228`,
+`~/.local/bin/claude` is a symlink to `~/.local/share/claude/versions/2.1.229`,
 a **Bun single-file executable** (`bun build --compile --bytecode`, ELF x86-64,
-308,521,992 bytes). The npm package `@anthropic-ai/claude-code@2.1.228` no longer
+311,175,440 bytes). The npm package `@anthropic-ai/claude-code@2.1.229` no longer
 contains the JS — it is a thin installer that downloads this binary.
 
 The binary is *not* opaque: the ELF section `.bun`
-(section index 29, file offset `0x052e1000`) contains, next to the JSC bytecode,
+(section index 29, file offset `0x050c5000`) contains, next to the JSC bytecode,
 the **complete JS bundle as plain UTF-8 text**:
 
 | what | value |
 |---|---|
-| bundle offset in the file | 275,923,784 |
-| bundle length | 25,004,391 bytes |
+| bundle offset in the file | 275,938,485 |
+| bundle length | 25,407,636 bytes |
 | first line | `// @bun @bytecode @bun-cjs` |
 | shape | one CJS function wrapper: `(function(exports, require, module, __filename, __dirname) { … })` |
 
@@ -33,15 +33,15 @@ cannot parse.
 
 ## 2. Fork subagent call/data flow
 
-Fork module (bundle byte 5,152,196 ff.):
+Fork module (bundle byte 5,272,967 ff.):
 
 ```js
-Uht = "fork-boilerplate"; wUt = "Your directive: ";           // byte 494,295
-function kyn(e){ return `<${Uht}>…You are a worker fork…</${Uht}>\n\n${wUt}${e}` }
-function cUs(e,t){ /* buildForkedMessages */ }
-qte = { agentType:"fork" /* ake */, tools:["*"], maxTurns:200, model:"inherit",
+yyt = "fork-boilerplate"; cjt = "Your directive: ";           // byte 505,601
+function lvn(e){ return `<${yyt}>…You are a worker fork…</${yyt}>\n\n${cjt}${e}` }
+function A4s(e,t){ /* buildForkedMessages */ }
+Ere = { agentType:"fork" /* rxe */, tools:["*"], maxTurns:200, model:"inherit",
         permissionMode:"bubble", source:"built-in",
-        getSystemPrompt:()=>"" }                               // byte 5,155,123
+        getSystemPrompt:()=>"" }                               // byte 5,275,187
 ```
 
 Note `getSystemPrompt:()=>""` — the fork agent definition has **no** system
@@ -50,42 +50,42 @@ all of them supply *the parent's*:
 
 | # | site | byte | what it passes |
 |---|---|---|---|
-| 1 | Agent tool, `subagent_type:"fork"` | 9,816,933 / 9,819,221 | `le = l.renderedSystemPrompt ?? Bme({…})`, then `override:{systemPrompt:le, …}`, `forkContextMessages:l.messages`, `promptMessages:cUs(e,u)` (the `<fork-boilerplate> … Your directive: <TASK>` message) |
-| 2 | `/fork` directive (`spawnForkFromDirective`) | 13,054,700 | `i = t.renderedSystemPrompt ?? await eHS(t)`, `promptMessages:[…n, Sn({text:kyn(e)})]` |
-| 3 | fork **resume / SendMessage** (`Hhe`) | 10,451,552 / 10,453,404 | `se` = "this agent is a fork"; `Re = s.renderedSystemPrompt ?? Bme({…})` **rebuilt from the resumer's (main loop's) context**, then `override:{systemPrompt:Re}`, `forkContextMessages:void 0`, `promptMessages: G` (transcript) `+ _t` (the new message) |
+| 1 | Agent tool, `subagent_type:"fork"` | 13,717,976 / 13,720,083 | `de = l.renderedSystemPrompt ?? lge({…})`, then `override:{systemPrompt:de, …}`, `forkContextMessages:l.messages`, `promptMessages:A4s(e,u)` (the `<fork-boilerplate> … Your directive: <TASK>` message) |
+| 2 | `/fork` directive (`spawnForkFromDirective` = `fOn`) | 11,106,578 / 11,108,330 | `i = t.renderedSystemPrompt ?? await Vgv(t)`, `promptMessages:[…n, bn({content:[{type:"text",text:lvn(e)}]})]` |
+| 3 | fork **resume / SendMessage** (`Vge`) | 14,110,160 / 14,111,970 | `ce` = "this agent is a fork"; `Re = s.renderedSystemPrompt ?? lge({…})` **rebuilt from the resumer's (main loop's) context**, then `override:{systemPrompt:Re}`, `forkContextMessages:void 0`, `promptMessages: j` (transcript) `+ the new message` |
 
 All three funnel into the single subagent stream generator
-**`Z5`** (byte 8,170,753):
+**`$W`** (byte 11,057,148):
 
 ```js
-async function*Z5({agentDefinition:e, promptMessages:t, …, override:d, …, useExactTools:S, …}) {
+async function*$W({agentDefinition:e, promptMessages:t, …, override:d, …, useExactTools:b, …}) {
   …
-  Q = d?.agentId ? d.agentId : PM();                                 // stable agent id
+  ee = d?.agentId ? d.agentId : nO();                                // stable agent id
   …
-  St = d?.systemPrompt ? d.systemPrompt : of(await _Eb(e,r,ie,Je)),  // <-- THE hinge
-  tr = ppp(St, S??!1, …),                                            // identity for forks
-  Ut = !S && … ? of([...tr, appendSubagentSystemPrompt]) : tr        // identity for forks
+  at = d?.systemPrompt ? d.systemPrompt : lf(await Cgv(e,r,ie,ft)),  // <-- THE hinge
+  tr = XXp(at, b??!1, …),                                            // identity for forks
+  sr = !b && … ? lf([...tr, appendSubagentSystemPrompt]) : tr        // identity for forks
   …
-  for await (let Qr of Vme({messages:Y, systemPrompt:Ut, …}))
+  for await (let Ir of Bhe({messages:J, systemPrompt:sr, …}))
 ```
 
-For a fork, `Ut === override.systemPrompt`, byte for byte.
+For a fork, `sr === override.systemPrompt`, byte for byte.
 
-`Vme` → the query loop **`Hcp`** (byte 7,963,004):
+`Bhe` → the query loop **`Xgp`** (byte 8,279,214):
 
 ```js
-async function*Hcp(e,t){ let {systemPrompt:r, userContext:n, systemContext:o, …} = e
+async function*Xgp(e,t){ let {systemPrompt:r, userContext:n, systemContext:o, …} = e
   while(!0){
-    let We = yield*f.autocompact(he, U, {systemPrompt:r, …}, …)      // byte 7,966,420
-    if (We.kind==="compacted") { … he = iit(sr) }                    // messages only
-    let ct = of(wcp(r,o))                                            // per-turn prompt
-    … f.callModel({messages:…, systemPrompt:ct, …})
+    let Ve = yield*f.autocompact(_e, B, {systemPrompt:r, …}, …)      // byte 8,282,668
+    if (Ve.kind==="compacted") { … _e = jst(Wr) }                    // messages only
+    let it = lf(cyp(r,o))                                            // per-turn prompt
+    … f.callModel({messages:…, systemPrompt:it, …})
   }
 }
 ```
 
 `r` is destructured **once** and never reassigned (verified: zero `r=`/`r+=` in
-the whole function body). `iit(e)` =
+the whole function body). `jst(e)` =
 `[boundaryMarker, …summaryMessages, …messagesToKeep, …attachments, …hookResults]`
 — compaction replaces **the message list only**.
 
@@ -93,10 +93,10 @@ the whole function body). `iit(e)` =
 
 * The fork's identity ("you are a worker fork") and its assignment
   ("`Your directive: <TASK>`") live **only in a conversation message**
-  (`kyn()` → `promptMessages`).
+  (`lvn()` → `promptMessages`).
 * The inherited parent history (`forkContextMessages`) is concatenated in front
-  of it: `Y = [...nVo(s), ...t]`. There is no protected prefix — `autocompact`
-  receives the whole `he`.
+  of it: `J = [...Oai(s), ...t]`. There is no protected prefix — `autocompact`
+  receives the whole `_e`.
 * When the threshold fires, the summariser rewrites everything into a summary of
   *the conversation*, which is overwhelmingly the **parent's** session: the
   parent's identity, its plans, its unfinished TODOs. The fork's own
@@ -122,9 +122,9 @@ this, because they all live in the history that compaction rewrites.
 one file (`cli.js`). Hunks 1 and 3 are the fork fix; hunk 2 is a build-integration
 fix that the fork fix made necessary (§4.2).
 
-### Hunk 1 — helper block, inserted after `kyn()` in the fork module
+### Hunk 1 — helper block, inserted after `lvn()` in the fork module
 
-Top-level (same scope as `kyn`/`cUs`), no existing code touched:
+Top-level (same scope as `lvn`/`A4s`), no existing code touched:
 
 * `ffxForkDirectiveFromText(e)` — given one text block, require the
   `<fork-boilerplate>` tag, then take everything after the last
@@ -135,7 +135,7 @@ Top-level (same scope as `kyn`/`cUs`), no existing code touched:
 * `ffxForkDirectiveFromTranscript(e)` — recovery path for a *cross-process*
   resume of a fork that has already compacted in-process, where the message
   scan cannot succeed (measured; see §7). Reads the agent's own transcript file via
-  upstream's own `LT(agentId)` (`getAgentTranscriptPath`) — the very file
+  upstream's own `U0(agentId)` (`getAgentTranscriptPath`) — the very file
   upstream resumed the agent from — and takes the **first**
   `<fork-boilerplate>` entry, i.e. the original assignment. Read-only; no new
   files, no storage-schema change. Wrapped in `try/catch`: if anything fails it
@@ -150,9 +150,9 @@ Top-level (same scope as `kyn`/`cUs`), no existing code touched:
   authoritative task for the whole life of the process (`SendMessage` and
   resume reuse the registered value).
 * `ffxForkSystemPrompt(e,t,r,n)` — returns `e` unchanged unless
-  `t.agentType === ake` (`"fork"`); for a fork returns
-  `of([...e, renderForkControl(assignment)])`, i.e. the parent's prompt array
-  plus one appended string. `of` is the bundle's own SystemPrompt brand, and
+  `t.agentType === rxe` (`"fork"`); for a fork returns
+  `lf([...e, renderForkControl(assignment)])`, i.e. the parent's prompt array
+  plus one appended string. `lf` is the bundle's own SystemPrompt brand, and
   appending a string to that array is the existing idiom (see the
   `appendSubagentSystemPrompt` branch two lines below).
 
@@ -162,7 +162,7 @@ Found in real use, after the first behavioural runs: in a patched session the Ba
 tool's `grep`, `find` and `pkill` printed **bun's help** instead of results.
 
 Upstream's `getEnvironmentOverrides` puts `process.execPath` into
-`CLAUDE_CODE_EXECPATH` for every Bash tool invocation (`hQs` is that name), and the
+`CLAUDE_CODE_EXECPATH` for every Bash tool invocation (`TJs` is that name), and the
 shell snapshot shadows those three commands with functions that re-exec that path
 as a **multicall binary**:
 
@@ -187,11 +187,11 @@ Bun is a fast JavaScript runtime, package manager, bundler, and test runner. …
 ```
 
 ```diff
--if(c[hQs]=process.execPath,l)c.TMUX=l;
-+if(c[hQs]=process.env.CLAUDE_CODE_EXECPATH||process.execPath,l)c.TMUX=l;
+-if(c[TJs]=process.execPath,l)c.TMUX=l;
++if(c[TJs]=process.env.CLAUDE_CODE_EXECPATH||process.execPath,l)c.TMUX=l;
 ```
 
-The bundle never *reads* `process.env[hQs]` anywhere (checked: this is the only
+The bundle never *reads* `process.env[TJs]` anywhere (checked: this is the only
 write and there is no read), so honouring a pre-set value changes nothing upstream
 does — with the variable unset the expression is upstream's own. `scripts/run-patched.sh`
 sets it to the **pinned stock binary**, which the shims then exec as
@@ -205,19 +205,19 @@ shim's hardcoded fallback is `~/.local/bin/claude`, i.e. whatever the symlink
 happens to point at, which is exactly what the fail-closed pinning exists to avoid),
 and patching the snapshot generator would change stock's shell behaviour.
 
-### Hunk 3 — one line in `Z5`
+### Hunk 3 — one line in `$W`
 
 ```diff
--St=d?.systemPrompt?d.systemPrompt:of(await _Eb(e,r,ie,Je)),
-+St=d?.systemPrompt?ffxForkSystemPrompt(d.systemPrompt,e,t,Q):of(await _Eb(e,r,ie,Je)),
+-at=d?.systemPrompt?d.systemPrompt:lf(await Cgv(e,r,ie,ft)),
++at=d?.systemPrompt?ffxForkSystemPrompt(d.systemPrompt,e,t,ee):lf(await Cgv(e,r,ie,ft)),
 ```
 
 This is the requested shape — `buildSystemPrompt(…)` → `if fork: append(renderForkControl(assignment))` —
 placed at the single funnel through which **all** fork paths pass:
 
 * spawn via the Agent tool, spawn via `/fork`, **and** resume/`SendMessage`
-  (`Hhe`), which a spawn-site-only patch would miss;
-* the resulting array becomes `Hcp`'s `r`, so it is reused unchanged for every
+  (`Vge`), which a spawn-site-only patch would miss;
+* the resulting array becomes `Xgp`'s `r`, so it is reused unchanged for every
   turn **after any number of compactions**;
 * the `else` branch (no `override.systemPrompt`) is untouched, so ordinary
   subagents, named agents, reviewers and isolated agents keep
@@ -238,13 +238,13 @@ outside the compactable region.
 
 ## 5. Why the patch needs a normalization step first
 
-The three target lines in the minified bundle are 1,760, 6,465 and 22,217
+The three target lines in the minified bundle are 1,760, 4,165 and 22,312
 characters long. A unified diff against them would be ~55 KB of unreadable noise,
 which defeats the point of shipping a readable patch.
 
 `scripts/normalize-bundle.py` therefore inserts newlines at **10 pinned anchor
 strings** before patching (4 of them isolate hunk 2's 38-character target line and
-its two context lines out of one 6,465-character line). This step is:
+its two context lines out of one 4,165-character line). This step is:
 
 * exact-match (each anchor must occur **exactly once** — no fuzz, no search),
 * provably inert (each anchor must be preceded by `,` `;` `{` or `}`, where a
@@ -261,7 +261,7 @@ The actual behaviour change is then a plain 140-line unified diff applied with
 ## 6. Appendix: the two texts, side by side
 
 What upstream already says — but **only in a conversation message**
-(`kyn()`, i.e. the first message of every fork, quoted from a real run):
+(`lvn()`, i.e. the first message of every fork, quoted from a real run):
 
 ```
 <fork-boilerplate>
@@ -350,8 +350,8 @@ the verbatim `<TASK>` — and the worker's `NO_TASK_BLOCK` answer was *truthful*
 Why: in the agent transcript of a fork that compacted in-process, the
 `compact_boundary` entry is written with **`parentUuid: null`**. Post-compaction
 entries therefore form a second chain rooted at the boundary, in the same file.
-`Hhe` → `qCt` → `pQt` picks the newest leaf that is not a `compact_boundary`, and
-`Ont` walks `parentUuid` to *that chain's* root — which is the boundary. The
+`Vge` → `GRt` → `Eer` picks the newest leaf that is not a `compact_boundary`, and
+`Eat` walks `parentUuid` to *that chain's* root — which is the boundary. The
 original spawn entry (`<fork-boilerplate> … Your directive: …`) sits in the
 earlier chain and is never reached. Measured on the transcript of run
 `patched-run1` (`…/subagents/agent-af5b036ca5fdb4a3f.jsonl`; raw `*.jsonl` are
@@ -392,11 +392,11 @@ is present locally) and `tests/m22_fork_control_mechanism.sh` (runtime capture, 
   `.meta.json` sidecar), i.e. a storage-schema change, which is out of scope by
   request.
 * **Nested forks.** A fork spawning a fork re-derives the prompt from the
-  *fork's* own context (`zWo` does not propagate `renderedSystemPrompt`), so the
+  *fork's* own context (`s6o` does not propagate `renderedSystemPrompt`), so the
   child's `<fork-control>` describes the child's directive — correct, but the
   child does not inherit the parent fork's block verbatim. Nested forks are out
   of scope.
-* **`cAp` in-process teammate runner** (byte 9,779,429) re-enters `Z5` without
+* **`bAf` in-process teammate runner** (byte 13,677,145) re-enters `$W` without
   `override.systemPrompt`; it is not a fork path and is unaffected either way.
 * **Hunk 2 depends on upstream's shim design, not just on one line.** The line
   itself is pinned (`patch --fuzz=0`, hash-checked), but the *reason* for it is the

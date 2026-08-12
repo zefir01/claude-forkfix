@@ -5,3 +5,12 @@ lrwxrwxrwx 1 user user 47 авг 11 16:00 /home/user/.local/bin/claude -> /home/
 4e9bec1177ce9690e8bd988b710ac24105e70da428dd094c5adcbbe786a55555  /home/user/.local/share/claude/versions/2.1.226
 6832dc3f1797b890b71116e5f2dbbf9a83fd3d0498c235b4b0f9cd0e6e499ad6  /home/user/.local/share/claude/versions/2.1.227
 d535985e6941a3eb00179ccd7f52ceb0c6623a0305a518ebc4e6514f84a94c99  /home/user/.local/share/claude/versions/2.1.228
+
+=== capture 2 (2026-08-12): upstream auto-updated to 2.1.229
+lrwxrwxrwx 1 user user 47 авг 12 14:24 /home/user/.local/bin/claude -> /home/user/.local/share/claude/versions/2.1.229
+/home/user/.local/share/claude/versions/2.1.229
+2.1.229 (Claude Code)
+4e9bec1177ce9690e8bd988b710ac24105e70da428dd094c5adcbbe786a55555  /home/user/.local/share/claude/versions/2.1.226
+6832dc3f1797b890b71116e5f2dbbf9a83fd3d0498c235b4b0f9cd0e6e499ad6  /home/user/.local/share/claude/versions/2.1.227
+d535985e6941a3eb00179ccd7f52ceb0c6623a0305a518ebc4e6514f84a94c99  /home/user/.local/share/claude/versions/2.1.228
+200338139a3df04a9ad22233837d1fb53fb6dffa21cd82e47559bfaa115acc1b  /home/user/.local/share/claude/versions/2.1.229

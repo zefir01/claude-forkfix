@@ -14,14 +14,14 @@ That needs a model in the loop. This document is the reproducible procedure.
 
 No patching, no fake summaries — the two upstream test knobs are used, so the
 compaction that happens is the ordinary auto-compact path
-(`Hcp` → `autocompact` → `iit`):
+(`Xgp` → `autocompact` → `jst`):
 
 | env var | effect |
 |---|---|
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | overrides the auto-compact window (clamped to 100k…1M); the experiment uses `100000` |
 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | percentage of that window at which compaction triggers |
 
-Threshold (bundle function `fWo`): `min(floor(window * pct/100), window - 13000)`.
+Threshold (bundle function `TGo`): `min(floor(window * pct/100), window - 13000)`.
 So `window=100000, pct=45` → compaction at **45,000 tokens**, which a fork with an
 inherited project history crosses in the middle of its own work.
 
@@ -90,8 +90,8 @@ transcript shape it needs, so nothing here depends on them being published.
 | T4 fork inherits MAIN history | experiment turn 2: the worker acts on files MAIN read, and the transcript starts with `fork-context-ref` |
 | T5 fork identity separate from MAIN | experiment turn 3, questions (1) and (2) |
 | T6 real compaction, then continue B | experiment turns 3-8 after ≥1 compaction |
-| T7 regression (the actual bug) | experiment turns 4 and 7 (`Continue.`) + the A-artifacts on disk, stock vs patched — reference pair `stock-run6`/`patched-run3` |
-| T8 ≥ 2 compaction cycles | compaction count in the verdict: **4** (stock-run6) and **5** (patched-run3) |
+| T7 regression (the actual bug) | experiment turns 4 and 7 (`Continue.`) + the A-artifacts on disk, stock vs patched — reference pair `stock-run6`/`patched-run3` (both on 2.1.228); patched re-verified alone on 2.1.229 in `patched-run4` |
+| T8 ≥ 2 compaction cycles | compaction count in the verdict: **4** (stock-run6), **5** (patched-run3), **6** (patched-run4 on 2.1.229) |
 | T9 `SendMessage` still refines without replacing | experiment turn 3 item (3), turn 5 (`out/C_SUM.txt`) and turn 6 (`out/D_SUM.txt`) |
 | T10 non-fork subagent unchanged | `tests/m23`: the captured system prompt of a `general-purpose` subagent is **byte-identical** (same SHA-256) on both builds, and contains no `<fork-control>`/`<TASK>` |
 | T11 incompatibility refused | `tests/t04`, `tests/t05` |
@@ -128,7 +128,7 @@ threshold was 60,000 tokens. Measured inside the worker:
 
 ≈30k tokens per turn (each turn re-attached a large file read, and connected MCP
 servers kept discovering tools mid-run), so the context refilled within one turn
-of every compaction. Upstream has a guard for exactly that (`hWo`/`Mfb`: three
+of every compaction. Upstream has a guard for exactly that (`Llb`/`CGo`: three
 consecutive refills within fewer than 3 turns → trip) and it **killed the worker**
 with
 
@@ -190,7 +190,7 @@ runtime guarantees it, and the more the parent's history dominates, the more
 compression pressure there is on that one paragraph.
 
 A second, independent stock mitigation surfaced while reading the resume path:
-`Hhe` → `qCt` → `Ont` reconstruct a resumed agent's history by walking the
+`Vge` → `GRt` → `Eat` reconstruct a resumed agent's history by walking the
 `parentUuid` chain **to the root**, so a *cross-process* resume of a parked fork
 gets the pre-compaction messages back, directive included. In-process compaction
 is therefore the only place where the assignment really depends on the summary
@@ -351,3 +351,51 @@ An honest summary of the whole matrix: T4–T6, T8, T9 are demonstrated on both
 builds; T7 is demonstrated as "patched does not drift", with stock as a
 non-reproducing control; the mechanism that makes drift structurally impossible is
 proven at byte level rather than by behaviour.
+
+### Run 10 — patched, scenario v5, on **2.1.229** (`patched-run4`) — re-verification after the upstream update
+
+Everything above (runs 1–9, including the reference pair) was measured on
+**2.1.228**. Upstream then auto-updated the stock install to **2.1.229**, the
+launcher failed closed, and the patch was re-pinned and regenerated (`README.md`
+§9, §14). This run is the behavioural re-verification on the new version. **Only
+the patched side was re-run — there is no 2.1.229 stock control**, so nothing here
+says anything new about stock; the stock comparison remains the 2.1.228 pair above.
+
+Same scenario, same knobs (`pct=45`, window 100,000 → threshold 45,000), eight
+turns, `OVERALL PASS` (`docs/experiments/patched-run4/verdict.txt`):
+
+| | patched-run3 (2.1.228) | patched-run4 (2.1.229) |
+|---|---|---|
+| real compactions in the worker | 5 | **6** |
+| thrash guard | not tripped | not tripped |
+| compaction sizes (pre → post) | 41,655→11,288 · 36,254→4,407 · 34,971→10,491 · 35,950→6,303 · 36,195→5,967 | 36,962→12,124 · 36,303→6,588 · 39,136→11,699 · 38,794→8,892 · 36,652→7,757 · 37,326→9,791 |
+| TASK B + `B! ` correction | done | done |
+| both refinements (T9) | `C_SUM` 6, `D_SUM` 12 | `C_SUM` 6, `D_SUM` 12 |
+| TASK A on disk (T7) | absent, `plan.md` unmodified | absent, `plan.md` unmodified |
+| inherited fact without reading (T4) | "7 attempts" | "7 attempts (from `docs/ch03.md:2`, inherited context)" |
+| identity (T5) | "A delegated fork worker (subagent …), not the main session" | "A delegated fork worker, not the main session" |
+| `Continue.` drift probe (T7) | "Nothing outstanding …" | turn 4: "TASK B is done; there's nothing left in my brief to continue"; turn 7: re-verified its twelve reads and reported `D_SUM` — no TASK A |
+| turn-8 mechanism probe | prints the whole `<TASK>` body | **prints the whole `<TASK>` body** |
+| assignment survival in summaries | 5/5 hops verbatim | **6/6 hops verbatim, identity labelled in all 6** |
+
+The turn-8 print byte-compares against the spawn entry, as on 2.1.228 — after
+**six** compactions and seven cross-process resumes:
+
+```
+spawn directive len: 629
+printed block len  : 629
+byte-identical     : True
+```
+
+(629 here vs 697 in `patched-run3` is not truncation: the fork's prompt is composed
+by MAIN in turn 2, and in run 3 MAIN appended its own sentence "TASK A stays
+pending and unfinished on my todo list; do not do it." while in run 4 it did not.
+Whatever MAIN sent is what the `<TASK>` block holds, byte for byte.)
+
+So the mechanism carried over unchanged, even though the 2.1.228 → 2.1.229 update
+renamed every symbol the patch touches (`Uht→yyt`, `wUt→cjt`, `ake→rxe`, `of→lf`,
+`LT→U0`, `hQs→TJs`, `Z5→$W`, `Hcp→Xgp`). The structural invariants the patch
+depends on — one `systemPrompt` destructure in `Xgp`, compaction replacing only
+the message list, all three fork paths passing the parent prompt — were re-derived
+and re-verified on the new bundle before the patch was regenerated
+(`docs/PATCH.md` §2, §3).

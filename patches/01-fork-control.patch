@@ -1,7 +1,7 @@
 --- a/cli.js
 +++ b/cli.js
-@@ -1802,2 +1802,119 @@
- ${wUt}${e}`}
+@@ -1577,2 +1577,119 @@
+ ${cjt}${e}`}
 +// --- BEGIN fork-control patch (claude-forkfix) -----------------------------
 +// A fork subagent runs on the PARENT's system prompt (passed as
 +// override.systemPrompt) and learns its own task only from a conversation
@@ -9,17 +9,17 @@
 +// Compaction rewrites the message list, so after a compact the fork can lose
 +// both its worker identity and its assignment, and then adopt the parent's
 +// leftover agenda from the summary. The system prompt is the one thing
-+// compaction never touches (see Hcp: `systemPrompt` is destructured once and
++// compaction never touches (see Xgp: `systemPrompt` is destructured once and
 +// autocompact only replaces the messages), so the worker identity and the
 +// verbatim assignment are pinned there instead.
 +var ffxForkAssignments = new Map;
 +// Recover the verbatim directive from one <fork-boilerplate> text block.
 +function ffxForkDirectiveFromText(e) {
-+  if (typeof e !== "string" || typeof wUt !== "string") return;
-+  if (typeof Uht === "string" && !e.includes("<" + Uht + ">")) return;
-+  let t = e.lastIndexOf(wUt);
++  if (typeof e !== "string" || typeof cjt !== "string") return;
++  if (typeof yyt === "string" && !e.includes("<" + yyt + ">")) return;
++  let t = e.lastIndexOf(cjt);
 +  if (t < 0) return;
-+  let r = e.slice(t + wUt.length).trim();
++  let r = e.slice(t + cjt.length).trim();
 +  return r.length > 0 ? r : void 0;
 +}
 +function ffxForkDirectiveFromMessages(e) {
@@ -42,21 +42,21 @@
 +// Fallback for a cross-process resume of a fork that has already compacted
 +// in-process. The reconstructed message list does NOT reach the spawn message
 +// then: the compact_boundary entry is written with parentUuid null, so
-+// upstream's chain walk (qCt -> pQt -> Ont) roots at the boundary and the
++// upstream's chain walk (GRt -> Eer -> Eat) roots at the boundary and the
 +// original "<fork-boilerplate> ... Your directive:" entry stays in an earlier
 +// chain of the same file. That file is still on disk and is the very file
 +// upstream itself resumed the agent from, so the verbatim directive is read
-+// back from it. LT(agentId) is upstream's own getAgentTranscriptPath.
++// back from it. U0(agentId) is upstream's own getAgentTranscriptPath.
 +// The FIRST matching entry is used: that is the original assignment, so this
 +// path cannot pick up a later, refined or summarised restatement of it.
 +function ffxForkDirectiveFromTranscript(e) {
-+  if (typeof e !== "string" || e.length === 0 || typeof Uht !== "string") return;
++  if (typeof e !== "string" || e.length === 0 || typeof yyt !== "string") return;
 +  try {
-+    let t = LT(e);
++    let t = U0(e);
 +    if (!fr().existsSync(t)) return;
 +    for (let r of fr().readFileSync(t, { encoding: "utf8" }).split(`
 +`)) {
-+      if (r.indexOf("<" + Uht + ">") < 0) continue;
++      if (r.indexOf("<" + yyt + ">") < 0) continue;
 +      let n;
 +      try { n = JSON.parse(r) } catch { continue }
 +      let o = n?.message?.content;
@@ -103,7 +103,7 @@
 +// later deliveries (SendMessage / resume) reuse the registered assignment and
 +// can never overwrite it.
 +function ffxForkSystemPrompt(e, t, r, n) {
-+  if (t?.agentType !== ake) return e;
++  if (t?.agentType !== rxe) return e;
 +  let o = n !== void 0 ? ffxForkAssignments.get(n) : void 0;
 +  if (o === void 0) {
 +    o = ffxForkDirectiveFromMessages(r);
@@ -116,25 +116,25 @@
 +      ffxForkAssignments.set(n, o);
 +    }
 +  }
-+  return of([...(Array.isArray(e) ? e : [e]), ffxRenderForkControl(o)]);
++  return lf([...(Array.isArray(e) ? e : [e]), ffxRenderForkControl(o)]);
 +}
 +// --- END fork-control patch -----------------------------------------------
- function uUs(e,t){
-@@ -2837,3 +2954,11 @@
+ function H4s(e,t){
+@@ -2520,3 +2637,11 @@
  async getEnvironmentOverrides(s,a){let l=null,c={};
--if(c[hQs]=process.execPath,l)c.TMUX=l;
+-if(c[TJs]=process.execPath,l)c.TMUX=l;
 +// --- fork-control patch: shell-snapshot exec path -----------------------
-+// hQs is "CLAUDE_CODE_EXECPATH". The shell snapshot defines grep/find/pkill
++// TJs is "CLAUDE_CODE_EXECPATH". The shell snapshot defines grep/find/pkill
 +// as functions that re-exec this path as a multicall binary (`exec -a ugrep
 +// "$_cc_bin" -G ...`), which only works when it is the stock single-file
 +// launcher. In this build process.execPath is the private bun, so the shims
 +// would hand bun ugrep's flags. Honour a pre-set value (the launcher exports
 +// the pinned stock binary) and fall back to upstream's behaviour otherwise.
-+if(c[hQs]=process.env.CLAUDE_CODE_EXECPATH||process.execPath,l)c.TMUX=l;
++if(c[TJs]=process.env.CLAUDE_CODE_EXECPATH||process.execPath,l)c.TMUX=l;
 +// --- END fork-control patch ---------------------------------------------
  if(a)for(let[u,d]of a)c[u]=d;
-@@ -3728,3 +3853,3 @@
- Je=Array.from(U.additionalWorkingDirectories.keys()),
--St=d?.systemPrompt?d.systemPrompt:of(await _Eb(e,r,ie,Je)),
-+St=d?.systemPrompt?ffxForkSystemPrompt(d.systemPrompt,e,t,Q):of(await _Eb(e,r,ie,Je)),
- tr=ppp(St,S??!1,(d?.suppressScratchpad||d?.isolatedContext)??!1),
+@@ -6604,3 +6729,3 @@
+ ft=Array.from(B.additionalWorkingDirectories.keys()),
+-at=d?.systemPrompt?d.systemPrompt:lf(await Cgv(e,r,ie,ft)),
++at=d?.systemPrompt?ffxForkSystemPrompt(d.systemPrompt,e,t,ee):lf(await Cgv(e,r,ie,ft)),
+ tr=XXp(at,b??!1,(d?.suppressScratchpad||d?.isolatedContext)??!1),

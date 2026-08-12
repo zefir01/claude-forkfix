@@ -26,8 +26,8 @@ LAUNCH="$FFX_ROOT/scripts/run-patched.sh"
 STOCK="$(stock_binary)"
 rc=0
 
-GUARDED='if(c[hQs]=process.env.CLAUDE_CODE_EXECPATH||process.execPath,l)c.TMUX=l;'
-PLAIN='if(c[hQs]=process.execPath,l)c.TMUX=l;'
+GUARDED='if(c[TJs]=process.env.CLAUDE_CODE_EXECPATH||process.execPath,l)c.TMUX=l;'
+PLAIN='if(c[TJs]=process.execPath,l)c.TMUX=l;'
 
 # ---- 1. patch/build shape
 grep -qxF -e "-$PLAIN" "$P" || { echo "  FAIL patch does not remove the unconditional assignment"; rc=1; }

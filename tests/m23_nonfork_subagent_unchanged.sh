@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # T10: an ordinary (non-fork) subagent must be identical on stock and patched.
-# The patch's guard is `if (t?.agentType !== ake) return e`, so a general-purpose
+# The patch's guard is `if (t?.agentType !== rxe) return e`, so a general-purpose
 # subagent must get the *identical value* back.
 #
 # Two independent checks:

@@ -29,6 +29,7 @@ ROOT="$(dirname "$(dirname "$PINNED")")"
 
 while IFS=$'\t' read -r path size mtime hash; do
   [ "$path" = "path" ] && continue
+  case "$path" in '#'*) continue ;; esac
   if [ "$size" = "symlink" ]; then
     got="-> $(readlink "$path")"
     [ "$got" = "$hash" ] || { echo "  FAIL symlink changed: $got != $hash"; rc=1; }

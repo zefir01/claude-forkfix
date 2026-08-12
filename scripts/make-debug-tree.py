@@ -14,8 +14,8 @@ What it inserts:
     FFX_DEBUG_FILE is set, append one JSON line describing the system prompt
     array (length, whether <fork-control>/<TASK> are present, the verbatim
     <TASK> body, and the whole <fork-control> block).
-  * a wrapper around every `systemPrompt:Ut` site in Z5 -- i.e. exactly the
-    value that becomes Hcp's `r` and is reused for every turn of the agent.
+  * a wrapper around every `systemPrompt:sr` site in $W -- i.e. exactly the
+    value that becomes Xgp's `r` and is reused for every turn of the agent.
 
 Both the patched tree and the unpatched normalized bundle accept the same
 instrumentation, so the two recordings are directly comparable (tests/m22).
@@ -36,8 +36,8 @@ require("fs").appendFileSync(f,Buffer.from(JSON.stringify({n:a.length,total_char
 sha256:sh,has_fork_control:fc!==null,has_TASK:tk!==null,task:tk,fork_control:fc,nonascii:nz})+"\n","utf8"))}catch(e){}return x}
 """
 
-ANCHOR = "function uUs(e,t){"          # pinned normalize anchor, start of a line
-SITE = "systemPrompt:Ut"
+ANCHOR = "function H4s(e,t){"          # pinned normalize anchor, start of a line
+SITE = "systemPrompt:sr"
 
 src = open(SRC, encoding="utf-8").read()
 if ANCHOR not in src:
@@ -47,6 +47,6 @@ if n_site != 2:
     sys.exit("expected 2 %r sites, found %d" % (SITE, n_site))
 
 out = src.replace(ANCHOR, HELPER + ANCHOR, 1)
-out = out.replace(SITE, "systemPrompt:ffxDbgDump(Ut)")
+out = out.replace(SITE, "systemPrompt:ffxDbgDump(sr)")
 open(DST, "w", encoding="utf-8").write(out)
 print("instrumented %s -> %s (%d capture sites)" % (SRC, DST, n_site))

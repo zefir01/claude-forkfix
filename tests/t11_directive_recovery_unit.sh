@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # T-auto (no API, no model): unit-test the patch's own functions, lifted verbatim
 # out of the built patched tree and executed with stubs for the six upstream
-# symbols they use (Uht, wUt, ake, of, LT, fr).
+# symbols they use (yyt, cjt, rxe, lf, U0, fr).
 #
 # The important case is #3: the transcript of a fork that already compacted
 # in-process. The reconstructed message list of such a fork no longer reaches the
@@ -54,7 +54,7 @@ def u(n):
 def entry(n, typ, content, parent, **kw):
     e = {"parentUuid": parent, "isSidechain": True, "agentId": AG, "type": typ,
          "uuid": u(n), "timestamp": "2026-08-12T03:1%d:00.000Z" % (n % 10),
-         "sessionId": SID, "version": "2.1.228", "cwd": "/tmp/ffx-synthetic",
+         "sessionId": SID, "version": "2.1.229", "cwd": "/tmp/ffx-synthetic",
          "userType": "external", "entrypoint": "sdk-cli", "gitBranch": "HEAD"}
     e["message"] = {"role": "assistant" if typ == "assistant" else "user",
                     "content": content}
@@ -139,10 +139,10 @@ assert "ffxForkDirectiveFromTranscript" in block, "recovery helper not in the bu
 cases = json.load(open(sys.argv[2], encoding='utf-8'))
 assert cases and all(c["expected"] for c in cases), "a fixture yielded no directive"
 print('const CASES=%s;' % json.dumps(cases))
-print('''const Uht="fork-boilerplate", wUt="Your directive: ", ake="fork";
-function of(a){return a}
+print('''const yyt="fork-boilerplate", cjt="Your directive: ", rxe="fork";
+function lf(a){return a}
 let LT_PATH=null;
-function LT(id){return LT_PATH}
+function U0(id){return LT_PATH}
 function fr(){return require("fs")}
 const BOILER="<fork-boilerplate>\\nYou are a worker fork. …\\n</fork-boilerplate>\\n\\n";
 function msg(text){return {message:{content:text}}}
@@ -154,10 +154,10 @@ print(block)
 print('''
 // 1. spawn path, string content
 ok("directive from spawn messages (string)",
-   ffxForkDirectiveFromMessages([msg("parent chatter"),msg(BOILER+wUt+"DO X")])==="DO X");
+   ffxForkDirectiveFromMessages([msg("parent chatter"),msg(BOILER+cjt+"DO X")])==="DO X");
 // 2. spawn path, content blocks
 ok("directive from spawn messages (blocks)",
-   ffxForkDirectiveFromMessages([msgBlocks(BOILER+wUt+"DO Y")])==="DO Y");
+   ffxForkDirectiveFromMessages([msgBlocks(BOILER+cjt+"DO Y")])==="DO Y");
 // 3. THE regression: transcript of an already-compacted fork
 for (const c of CASES) {
   LT_PATH=c.path;
@@ -177,24 +177,24 @@ for (const c of CASES) {
 }
 // 4. a summary that only paraphrases/quotes the directive is NOT accepted
 ok("summarised restatement rejected (no boilerplate tag)",
-   ffxForkDirectiveFromText("Summary: the fork's "+wUt+"do something else")===undefined);
+   ffxForkDirectiveFromText("Summary: the fork's "+cjt+"do something else")===undefined);
 // 5. non-fork agents get the identical value back
 LT_PATH=null;
 const parent=["PARENT PROMPT"];
 ok("non-fork agentType: same array instance returned",
-   ffxForkSystemPrompt(parent,{agentType:"general-purpose"},[msg(BOILER+wUt+"DO Z")],"id-nf")===parent);
+   ffxForkSystemPrompt(parent,{agentType:"general-purpose"},[msg(BOILER+cjt+"DO Z")],"id-nf")===parent);
 // 6. fork: parent prompt preserved + fork-control appended with the verbatim TASK
-const forked=ffxForkSystemPrompt(parent,{agentType:ake},[msg(BOILER+wUt+"DO Z")],"id-f1");
+const forked=ffxForkSystemPrompt(parent,{agentType:rxe},[msg(BOILER+cjt+"DO Z")],"id-f1");
 ok("fork: parent prompt kept verbatim as element 0", forked[0]==="PARENT PROMPT"&&forked.length===2);
 ok("fork: <fork-control> appended", forked[1].startsWith("<fork-control>"));
 ok("fork: <TASK> holds the verbatim directive",
    forked[1].includes("<TASK>\\nDO Z\\n</TASK>"));
 // 7. assignment is immutable per agentId
-const again=ffxForkSystemPrompt(parent,{agentType:ake},[msg(BOILER+wUt+"A DIFFERENT PARENT GOAL")],"id-f1");
+const again=ffxForkSystemPrompt(parent,{agentType:rxe},[msg(BOILER+cjt+"A DIFFERENT PARENT GOAL")],"id-f1");
 ok("assignment immutable for the same agentId",
    again[1].includes("<TASK>\\nDO Z\\n</TASK>")&&!again[1].includes("A DIFFERENT PARENT GOAL"));
 // 8. unrecoverable directive: fallback wording, no <TASK>, still a worker
-const none=ffxForkSystemPrompt(parent,{agentType:ake},[msg("no directive here")],"id-f2");
+const none=ffxForkSystemPrompt(parent,{agentType:rxe},[msg("no directive here")],"id-f2");
 ok("no directive: fork-control still present, no <TASK> block",
    none[1].includes("<fork-control>")&&!none[1].includes("<TASK>"));
 ok("no directive: told to report, not to substitute a parent goal",

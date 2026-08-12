@@ -1,0 +1,6 @@
+path	size	mtime_epoch	sha256
+/home/user/.local/share/claude/versions/2.1.225	297831432	1786152866	0a3be8d18cb0f5357d38ce2d588601753a60b44cc9c622579ed8b8405dee231e
+/home/user/.local/share/claude/versions/2.1.226	297831432	1786223511	4e9bec1177ce9690e8bd988b710ac24105e70da428dd094c5adcbbe786a55555
+/home/user/.local/share/claude/versions/2.1.227	304282632	1786404716	6832dc3f1797b890b71116e5f2dbbf9a83fd3d0498c235b4b0f9cd0e6e499ad6
+/home/user/.local/share/claude/versions/2.1.228	308521992	1786489233	d535985e6941a3eb00179ccd7f52ceb0c6623a0305a518ebc4e6514f84a94c99
+/home/user/.local/bin/claude	symlink	1786489233	-> /home/user/.local/share/claude/versions/2.1.228

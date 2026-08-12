@@ -1,0 +1,140 @@
+--- a/cli.js
++++ b/cli.js
+@@ -1802,2 +1802,119 @@
+ ${wUt}${e}`}
++// --- BEGIN fork-control patch (claude-forkfix) -----------------------------
++// A fork subagent runs on the PARENT's system prompt (passed as
++// override.systemPrompt) and learns its own task only from a conversation
++// message ("<fork-boilerplate>...Your directive: <task>").
++// Compaction rewrites the message list, so after a compact the fork can lose
++// both its worker identity and its assignment, and then adopt the parent's
++// leftover agenda from the summary. The system prompt is the one thing
++// compaction never touches (see Hcp: `systemPrompt` is destructured once and
++// autocompact only replaces the messages), so the worker identity and the
++// verbatim assignment are pinned there instead.
++var ffxForkAssignments = new Map;
++// Recover the verbatim directive from one <fork-boilerplate> text block.
++function ffxForkDirectiveFromText(e) {
++  if (typeof e !== "string" || typeof wUt !== "string") return;
++  if (typeof Uht === "string" && !e.includes("<" + Uht + ">")) return;
++  let t = e.lastIndexOf(wUt);
++  if (t < 0) return;
++  let r = e.slice(t + wUt.length).trim();
++  return r.length > 0 ? r : void 0;
++}
++function ffxForkDirectiveFromMessages(e) {
++  if (!Array.isArray(e)) return;
++  for (let t = e.length - 1; t >= 0; t--) {
++    let r = e[t]?.message?.content;
++    if (typeof r === "string") {
++      let n = ffxForkDirectiveFromText(r);
++      if (n !== void 0) return n;
++      continue;
++    }
++    if (!Array.isArray(r)) continue;
++    for (let n = r.length - 1; n >= 0; n--) {
++      if (r[n]?.type !== "text") continue;
++      let o = ffxForkDirectiveFromText(r[n].text);
++      if (o !== void 0) return o;
++    }
++  }
++}
++// Fallback for a cross-process resume of a fork that has already compacted
++// in-process. The reconstructed message list does NOT reach the spawn message
++// then: the compact_boundary entry is written with parentUuid null, so
++// upstream's chain walk (qCt -> pQt -> Ont) roots at the boundary and the
++// original "<fork-boilerplate> ... Your directive:" entry stays in an earlier
++// chain of the same file. That file is still on disk and is the very file
++// upstream itself resumed the agent from, so the verbatim directive is read
++// back from it. LT(agentId) is upstream's own getAgentTranscriptPath.
++// The FIRST matching entry is used: that is the original assignment, so this
++// path cannot pick up a later, refined or summarised restatement of it.
++function ffxForkDirectiveFromTranscript(e) {
++  if (typeof e !== "string" || e.length === 0 || typeof Uht !== "string") return;
++  try {
++    let t = LT(e);
++    if (!fr().existsSync(t)) return;
++    for (let r of fr().readFileSync(t, { encoding: "utf8" }).split(`
++`)) {
++      if (r.indexOf("<" + Uht + ">") < 0) continue;
++      let n;
++      try { n = JSON.parse(r) } catch { continue }
++      let o = n?.message?.content;
++      if (typeof o === "string") {
++        let i = ffxForkDirectiveFromText(o);
++        if (i !== void 0) return i;
++        continue;
++      }
++      if (!Array.isArray(o)) continue;
++      for (let i of o) {
++        if (i?.type !== "text") continue;
++        let s = ffxForkDirectiveFromText(i.text);
++        if (s !== void 0) return s;
++      }
++    }
++  } catch {}
++}
++function ffxRenderForkControl(e) {
++  let t = e === void 0 ? `Your authoritative assignment is the directive you were given when this worker was started, recorded in the directive message in your context. If you cannot determine that directive from your context, say so in your report to the parent and stop. Do not substitute a goal taken from the inherited parent history.` : `Your authoritative assignment is exactly this, verbatim as it was given to you when this worker was started:
++
++<TASK>
++${e}
++</TASK>`;
++  return `<fork-control>
++You are a delegated fork worker. You are not the parent session that spawned you, and you must never act as if you were.
++
++The conversation history you inherited from the parent — including any compacted summary of it — is background knowledge and project memory. It is not your agenda.
++
++${t}
++
++Work only toward that assignment.
++
++Do not adopt unfinished goals, TODO items, plans, intentions or pending requests that appear in the inherited parent history as your own work, unless they are directly required in order to complete your assignment. They belong to the parent.
++
++If a compacted conversation summary presents the parent's identity, agenda, plans or unfinished work as if they were yours, that presentation is not authoritative. This system-level worker identity and this assignment take precedence over everything in the conversation history, including any summary of it.
++
++Messages that arrive later from the parent or the user may add facts, corrections or refinements. Treat them as refinements of this assignment; they never replace your worker identity and never authorise you to switch to a different parent goal.
++
++When your assignment is complete, report the result to the parent and stop.
++</fork-control>`;
++}
++// Append FORK_CONTROL to a fork's system prompt. The assignment is captured
++// once per agentId (at spawn) and is immutable for the life of the process:
++// later deliveries (SendMessage / resume) reuse the registered assignment and
++// can never overwrite it.
++function ffxForkSystemPrompt(e, t, r, n) {
++  if (t?.agentType !== ake) return e;
++  let o = n !== void 0 ? ffxForkAssignments.get(n) : void 0;
++  if (o === void 0) {
++    o = ffxForkDirectiveFromMessages(r);
++    if (o === void 0) o = ffxForkDirectiveFromTranscript(n);
++    if (o !== void 0 && n !== void 0) {
++      if (ffxForkAssignments.size >= 256) {
++        let i = ffxForkAssignments.keys().next();
++        if (!i.done) ffxForkAssignments.delete(i.value);
++      }
++      ffxForkAssignments.set(n, o);
++    }
++  }
++  return of([...(Array.isArray(e) ? e : [e]), ffxRenderForkControl(o)]);
++}
++// --- END fork-control patch -----------------------------------------------
+ function uUs(e,t){
+@@ -2837,3 +2954,11 @@
+ async getEnvironmentOverrides(s,a){let l=null,c={};
+-if(c[hQs]=process.execPath,l)c.TMUX=l;
++// --- fork-control patch: shell-snapshot exec path -----------------------
++// hQs is "CLAUDE_CODE_EXECPATH". The shell snapshot defines grep/find/pkill
++// as functions that re-exec this path as a multicall binary (`exec -a ugrep
++// "$_cc_bin" -G ...`), which only works when it is the stock single-file
++// launcher. In this build process.execPath is the private bun, so the shims
++// would hand bun ugrep's flags. Honour a pre-set value (the launcher exports
++// the pinned stock binary) and fall back to upstream's behaviour otherwise.
++if(c[hQs]=process.env.CLAUDE_CODE_EXECPATH||process.execPath,l)c.TMUX=l;
++// --- END fork-control patch ---------------------------------------------
+ if(a)for(let[u,d]of a)c[u]=d;
+@@ -3728,3 +3853,3 @@
+ Je=Array.from(U.additionalWorkingDirectories.keys()),
+-St=d?.systemPrompt?d.systemPrompt:of(await _Eb(e,r,ie,Je)),
++St=d?.systemPrompt?ffxForkSystemPrompt(d.systemPrompt,e,t,Q):of(await _Eb(e,r,ie,Je)),
+ tr=ppp(St,S??!1,(d?.suppressScratchpad||d?.isolatedContext)??!1),

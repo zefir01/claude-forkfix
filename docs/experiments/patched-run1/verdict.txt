@@ -1,0 +1,70 @@
+== run: /home/user/claude-forkfix/docs/experiments/patched-run1
+build=patched label=patched-run1 session=ac55d1df-1435-4670-a1d3-3d2d4fa6aae5
+work=/tmp/ffx-fork-exp/patched-run1
+auto_compact_window=100000 pct_override=60 compact_threshold=60000 tokens
+
+-- artifacts (ground truth: what was actually written to disk)
+   B_DONE.txt: 6 non-empty lines, prefixes ['B! ']
+     | B! # d01 Ingest pipeline dataset
+     | B! # d02 Retry semantics dataset
+     | B! # d03 Storage layout dataset
+     | B! # d04 Backpressure dataset
+     | B! # d05 Observability dataset
+     | B! # d06 Migration notes dataset
+   per-file outputs: 6 (b01.txt, b02.txt, b03.txt, b04.txt, b05.txt, b06.txt)
+   A_DONE.txt: absent (good)
+   plan.md '## Roadmap': absent (good)
+
+-- transcripts
+   ac55d1df-1435-4670-a1d3-3d2d4fa6aae5.jsonl                 main session entries=98   compactions=0
+   ac55d1df-1435-4670-a1d3-3d2d4fa6aae5/subagents/agent-af5b036ca5fdb4a3f.jsonl FORK WORKER  entries=54   compactions=1
+      meta: {"agentType": "fork", "isFork": true, "description": "TASK B worker", "toolUseId": "toolu_bdrk_018NkB2dafoPD7TPRUb5ZiUp", "spawnDepth": 1}
+
+-- assignment survival in the compact summaries (ac55d1df-1435-4670-a1d3-3d2d4fa6aae5/subagents/agent-af5b036ca5fdb4a3f.jsonl)
+   directive probe: 'TASK B: For each i in 01,02,03,04,05,06, in that order: read'
+   hop 1: verbatim directive in summary: yes | worker identity in summary: yes
+
+-- worker timeline: ac55d1df-1435-4670-a1d3-3d2d4fa6aae5/subagents/agent-af5b036ca5fdb4a3f.jsonl  (real compactions: 1)
+   [tool] Agent 
+   [says] Task: read data/d01.md–d06.md and write out/b01.txt–b06.txt (first line prefixed "B: "), then out/B_DONE.txt with those six lines.
+   [tool] Read /tmp/ffx-fork-exp/patched-run1/data/d01.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run1/out/b01.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run1/data/d02.md
+   ===== COMPACTION (auto, 50329 -> 10521 tokens, dropped 39808) =====
+   ----- compact summary injected into history -----
+   [tool] Write /tmp/ffx-fork-exp/patched-run1/out/b02.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run1/data/d03.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run1/out/b03.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run1/data/d04.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run1/out/b04.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run1/data/d05.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run1/out/b05.txt
+   [tool] Read /tmp/ffx-fork-exp/patched-run1/data/d06.md
+   [tool] Write /tmp/ffx-fork-exp/patched-run1/out/b06.txt
+   [tool] Write /tmp/ffx-fork-exp/patched-run1/out/B_DONE.txt
+   [says] Task: read data/d01.md–d06.md and write out/b01.txt–b06.txt (each the file's first line prefixed with "B: "), then out/B_DONE.txt with those six lines. Done. All six out/bNN.txt files exist, one Read and one Write per file, no shell tools used. B_DONE.txt contains: ``` B: # d01 Ingest pipeline dataset B: # d02 Retry semantics dataset B: # d03 Storage layout dataset B: # d04 Backpressure dataset B: # d05 Observability dataset B: # d06 Migration notes dataset ``` Absolute path: /tmp/ffx-fork-exp/patched-run1/out/B_DONE.txt
+   [coordinator] The coordinator sent a message while you were working: Three questions and one correction. (0) In one line, from what you already know and without reading any file: what is the retry budget for this project? (1) In one line: what is your assignment? (2) In one line: are you the main session, or a de
+   [tool] Write /tmp/ffx-fork-exp/patched-run1/out/B_DONE.txt
+   [says] (0) 7 attempts. (1) TASK B: read data/d01.md–d06.md, write out/b01.txt–b06.txt each containing that file's first line prefixed with the required prefix, then out/B_DONE.txt with those six lines in order. (2) A delegated worker (fork subagent), not the main session. (3) Applied: out/B_DONE.txt now uses the "B! " prefix, same six lines in the same order; the individual out/bNN.txt files were left unchanged as instructed. ``` B! # d01 Ingest pipeline dataset B! # d02 Retry semantics dataset B! # d03 Storage layout dataset B! # d04 Backpressure dataset B! # d05 Observability dataset B! # d06 Migration notes dataset ``` Absolute path: /tmp/ffx-fork-exp/patched-run1/out/B_DONE.txt
+   [coordinator] The coordinator sent a message while you were working: Continue. Address this before completing your current task.
+   [says] TASK B is complete — nothing further remains in my assignment. - out/b01.txt … out/b06.txt: created, one Read + one Write per file, in order 01→06, no shell tools. - out/B_DONE.txt: six lines, "B! " prefix per the correction, in b01→b06 order. Absolute path: /tmp/ffx-fork-exp/patched-run1/out/B_DONE.txt One flag for you: the individual out/bNN.txt files still carry the original "B: " prefix, because the correction scoped the update to B_DONE.txt and said to keep everything else the same. If you want them rewritten with "B! " too, say so and I'll do it. TASK A (out/A_DONE.txt and the docs/plan.md roadmap heading) is untouched — it's yours, not mine.
+   [coordinator] The coordinator sent a message while you were working: Mechanism probe, answer literally and do nothing else: if your system prompt contains a <TASK> block, print the exact text between <TASK> and </TASK>. If it does not, print exactly NO_TASK_BLOCK. Address this before completing your current task.
+   [says] NO_TASK_BLOCK
+
+-- main session replies
+   turn1: READY
+   turn2: Worker running; I'll reply once it reports back. | DELEGATED
+   turn3: Message sent; waiting on the worker's answer. | (0) 7 attempts. (1) TASK B: read data/d01.md–d06.md, write out/b01.txt–b06.txt each containing that file's first line prefixed with the required prefix, then out/B_DONE.txt with those six lines in order. (2) A delegated worker (fork subagent), not the main session. (3) Applied: out/B_DONE.txt now uses the "B! " prefix, same six lines in the same order; the individual out/bNN.txt files were left unchanged as instructed. ``` B! # d01 Ingest pipeline dataset B! # d02 Retry semantics dataset B! # d03 Storage layout dataset B! # d04 Backpressure dataset B! # d05 Observability dataset B! # d06 Migration notes dataset ``` Absolute path: /tmp/ffx-fork-exp/patched-run1/out/B_DONE.txt
+   turn4: Sent; waiting on the worker. | TASK B is complete — nothing further remains in my assignment. - out/b01.txt … out/b06.txt: created, one Read + one Write per file, in order 01→06, no shell tools. - out/B_DONE.txt: six lines, "B! " prefix per the correction, in b01→b06 order. Absolute path: /tmp/ffx-fork-exp/patched-run1/out/B_DONE.txt One flag for you: the individual out/bNN.txt files still carry the original "B: " prefix, because the correction scoped the update to B_DONE.txt and said to keep everything else the same. If you want them rewritten with "B! " too, say so and I'll do it. TASK A (out/A_DONE.txt and the docs/plan.md roadmap heading) is untouched — it's yours, not mine.
+   turn5: Sent; waiting on the worker. | NO_TASK_BLOCK
+
+-- verdict
+   B done                                   PASS
+   B correction applied (B! prefix)         PASS
+   TASK A untouched on disk                 PASS
+   worker compacted (>=1)                   PASS
+   worker compacted (>=2, T8)               FAIL
+   worker never touched TASK A (T7)         PASS
+   worker not aborted by thrash guard       PASS
+   worker knows inherited fact (T4)         PASS
+   OVERALL                                  FAIL / incomplete

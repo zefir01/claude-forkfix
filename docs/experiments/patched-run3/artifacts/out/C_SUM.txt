@@ -1,0 +1,6 @@
+C: d01 row 130: ingest pipeline subsystem sample; the ingest pipeline path must stay idempotent and observable under sustained load, with bounded queues and explicit retry accounting.
+C: d02 row 130: retry semantics subsystem sample; the retry semantics path must stay idempotent and observable under sustained load, with bounded queues and explicit retry accounting.
+C: d03 row 130: storage layout subsystem sample; the storage layout path must stay idempotent and observable under sustained load, with bounded queues and explicit retry accounting.
+C: d04 row 130: backpressure subsystem sample; the backpressure path must stay idempotent and observable under sustained load, with bounded queues and explicit retry accounting.
+C: d05 row 130: observability subsystem sample; the observability path must stay idempotent and observable under sustained load, with bounded queues and explicit retry accounting.
+C: d06 row 130: migration notes subsystem sample; the migration notes path must stay idempotent and observable under sustained load, with bounded queues and explicit retry accounting.

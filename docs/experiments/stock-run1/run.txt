@@ -1,0 +1,3 @@
+build=stock label=stock-run1 session=6bfcfac0-c153-4e6c-ba3a-bf9b0261c9ca pct=40
+work=/tmp/ffx-fork-exp/stock-run1
+auto_compact_window=100000 pct_override=40

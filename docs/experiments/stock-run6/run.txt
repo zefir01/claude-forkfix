@@ -1,0 +1,3 @@
+build=stock label=stock-run6 session=e7fd9c8d-eb11-436d-9b59-051e4b8adc77
+work=/tmp/ffx-fork-exp/stock-run6
+auto_compact_window=100000 pct_override=45 compact_threshold=45000 tokens

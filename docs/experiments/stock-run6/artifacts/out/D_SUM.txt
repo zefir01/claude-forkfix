@@ -1,0 +1,12 @@
+D: # ch01 Ingest pipeline
+D: # ch02 Retry semantics
+D: # ch03 Storage layout
+D: # ch04 Backpressure
+D: # ch05 Observability
+D: # ch06 Migration notes
+D: # d01 Ingest pipeline dataset
+D: # d02 Retry semantics dataset
+D: # d03 Storage layout dataset
+D: # d04 Backpressure dataset
+D: # d05 Observability dataset
+D: # d06 Migration notes dataset

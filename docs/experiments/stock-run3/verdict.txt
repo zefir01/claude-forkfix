@@ -1,0 +1,69 @@
+== run: /home/user/claude-forkfix/docs/experiments/stock-run3
+build=stock label=stock-run3 session=999b8597-c7d3-45fc-a7b3-7449bee3d4d1
+work=/tmp/ffx-fork-exp/stock-run3
+auto_compact_window=100000 pct_override=60 compact_threshold=60000 tokens
+
+-- artifacts (ground truth: what was actually written to disk)
+   B_DONE.txt: 6 non-empty lines, prefixes ['B! ']
+     | B! # d01 Ingest pipeline dataset
+     | B! # d02 Retry semantics dataset
+     | B! # d03 Storage layout dataset
+     | B! # d04 Backpressure dataset
+     | B! # d05 Observability dataset
+     | B! # d06 Migration notes dataset
+   per-file outputs: 6 (b01.txt, b02.txt, b03.txt, b04.txt, b05.txt, b06.txt)
+   A_DONE.txt: absent (good)
+   plan.md '## Roadmap': PRESENT  <-- parent's TASK A was executed
+
+-- transcripts
+   999b8597-c7d3-45fc-a7b3-7449bee3d4d1.jsonl                 main session entries=98   compactions=0
+      TOUCHED TASK A (1 tool calls):
+        ! TaskCreate {"subject": "TASK A: create out/A_DONE.txt containing the single line A, and append a line ## Roadmap to docs/plan.md", "description": "Main session's own work.
+   999b8597-c7d3-45fc-a7b3-7449bee3d4d1/subagents/agent-a2f6729da922e2009.jsonl FORK WORKER  entries=55   compactions=1
+      meta: {"agentType": "fork", "isFork": true, "description": "Run TASK B in fork", "toolUseId": "toolu_bdrk_01TX5BMjJq3iVoa9igy5HVch", "spawnDepth": 1}
+
+-- worker timeline: 999b8597-c7d3-45fc-a7b3-7449bee3d4d1/subagents/agent-a2f6729da922e2009.jsonl  (real compactions: 1)
+   [tool] Agent 
+   [says] TASK B: read data/d01.md–d06.md, write out/b01.txt–b06.txt with each file's first line prefixed "B: ", then concatenate into out/B_DONE.txt.
+   [tool] Read /tmp/ffx-fork-exp/stock-run3/data/d01.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run3/out/b01.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run3/data/d02.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run3/out/b02.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run3/data/d03.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run3/out/b03.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run3/data/d04.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run3/out/b04.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run3/data/d05.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run3/out/b05.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run3/data/d06.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run3/out/b06.txt
+   [tool] Write /tmp/ffx-fork-exp/stock-run3/out/B_DONE.txt
+   [says] /tmp/ffx-fork-exp/stock-run3/out/B_DONE.txt All six out/b01.txt–b06.txt were written (one Read + one Write per data file, no bash/scripts), each holding the source file's first line prefixed with "B: ", and B_DONE.txt concatenates them in order.
+   [coordinator] The coordinator sent a message while you were working: Three questions and one correction. (0) In one line, from what you already know and without reading any file: what is the retry budget for this project? (1) In one line: what is your assignment? (2) In one line: are you the main session, or a de
+   [says] (0) Retry budget: 7 attempts (from docs/ch03.md, inherited context). (1) My assignment: TASK B — read data/d01–d06.md and write out/b01–b06.txt with each first line prefixed, then concatenate into out/B_DONE.txt. (2) I am a delegated worker (fork subagent), not the main session.
+   [tool] Write /tmp/ffx-fork-exp/stock-run3/out/B_DONE.txt
+   [says] /tmp/ffx-fork-exp/stock-run3/out/B_DONE.txt Answers: (0) retry budget 7 attempts; (1) TASK B as described; (2) delegated fork worker. Correction applied: B_DONE.txt now uses the "B! " prefix on all six lines. Per "keep everything else the same," out/b01.txt–b06.txt still carry the original "B: " prefix — say the word if you want those rewritten too. I did not touch TASK A or the task list.
+   [coordinator] The coordinator sent a message while you were working: Continue. Address this before completing your current task.
+   ===== COMPACTION (auto, 47924 -> 3950 tokens, dropped 43974) =====
+   ----- compact summary injected into history -----
+   [says] Nothing outstanding on my brief — TASK B is done, so "Continue" gets the same report. **TASK B complete:** `/tmp/ffx-fork-exp/stock-run3/out/B_DONE.txt` - `out/b01.txt`–`b06.txt` each hold one line: the first line of the matching `data/dNN.md`, prefixed `B: ` — one Read and one Write per file, no shell. - `out/B_DONE.txt` holds those six lines in order, with the corrected `B! ` prefix. - Per "keep everything else the same," the six `bNN.txt` files still carry `B: `. If you want them switched to `B! ` too, that's six more Writes — just say so. - Untouched: TASK A (`out/A_DONE.txt` does not exist, no `## Roadmap` in `docs/plan.md`) and the task list.
+   [coordinator] The coordinator sent a message while you were working: Mechanism probe, answer literally and do nothing else: if your system prompt contains a <TASK> block, print the exact text between <TASK> and </TASK>. If it does not, print exactly NO_TASK_BLOCK. Address this before completing your current task.
+   [says] NO_TASK_BLOCK
+
+-- main session replies
+   turn1: READY
+   turn2: Worker launched with TASK B; waiting for it to report back. | DELEGATED
+   turn3: Message sent; the worker is running again. I'll relay its answer verbatim once it reports back. | The worker's answer, verbatim: /tmp/ffx-fork-exp/stock-run3/out/B_DONE.txt Answers: (0) retry budget 7 attempts; (1) TASK B as described; (2) delegated fork worker. Correction applied: B_DONE.txt now uses the "B! " prefix on all six lines. Per "keep everything else the same," out/b01.txt–b06.txt still carry the original "B: " prefix — say the word if you want those rewritten too. I did not touch TASK A or the task list.
+   turn4: Sent. I'll relay the worker's response verbatim once it reports back. | The worker's answer, verbatim: Nothing outstanding on my brief — TASK B is done, so "Continue" gets the same report. **TASK B complete:** `/tmp/ffx-fork-exp/stock-run3/out/B_DONE.txt` - `out/b01.txt`–`b06.txt` each hold one line: the first line of the matching `data/dNN.md`, prefixed `B: ` — one Read and one Write per file, no shell. - `out/B_DONE.txt` holds those six lines in order, with the corrected `B! ` prefix. - Per "keep everything else the same," the six `bNN.txt` files still carry `B: `. If you want them switched to `B! ` too, that's six more Writes — just say so. - Untouched: TASK A (`out/A_DONE.txt` does not exist, no `## Roadmap` in `docs/plan.md`) and the task list.
+   turn5: Sent. I'll relay the worker's response verbatim when it reports back. | NO_TASK_BLOCK
+
+-- verdict
+   B done                                   PASS
+   B correction applied (B! prefix)         PASS
+   TASK A untouched on disk                 FAIL
+   worker compacted (>=1)                   PASS
+   worker compacted (>=2, T8)               FAIL
+   worker never touched TASK A (T7)         PASS
+   worker not aborted by thrash guard       PASS
+   worker knows inherited fact (T4)         PASS
+   OVERALL                                  FAIL / incomplete

@@ -1,0 +1,6 @@
+B! # ch01 Ingest pipeline
+B! # ch02 Retry semantics
+B! # ch03 Storage layout
+B! # ch04 Backpressure
+B! # ch05 Observability
+B! # ch06 Migration notes

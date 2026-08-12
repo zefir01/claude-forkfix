@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Patched Claude Code (fork-control). Same version, same ~/.claude, same sessions.
+# Arguments are passed through unchanged; Claude's exit code is returned as-is.
+exec "$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)/scripts/run-patched.sh" "$@"

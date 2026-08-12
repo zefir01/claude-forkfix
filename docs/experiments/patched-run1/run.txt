@@ -1,0 +1,3 @@
+build=patched label=patched-run1 session=ac55d1df-1435-4670-a1d3-3d2d4fa6aae5
+work=/tmp/ffx-fork-exp/patched-run1
+auto_compact_window=100000 pct_override=60 compact_threshold=60000 tokens

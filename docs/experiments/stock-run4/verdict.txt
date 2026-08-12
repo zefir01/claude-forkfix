@@ -1,0 +1,71 @@
+== run: /home/user/claude-forkfix/docs/experiments/stock-run4
+build=stock label=stock-run4 session=4247b921-aa4b-4038-890b-58eb240401ac
+work=/tmp/ffx-fork-exp/stock-run4
+auto_compact_window=100000 pct_override=60 compact_threshold=60000 tokens
+
+-- artifacts (ground truth: what was actually written to disk)
+   B_DONE.txt: 6 non-empty lines, prefixes ['B! ']
+     | B! # d01 Ingest pipeline dataset
+     | B! # d02 Retry semantics dataset
+     | B! # d03 Storage layout dataset
+     | B! # d04 Backpressure dataset
+     | B! # d05 Observability dataset
+     | B! # d06 Migration notes dataset
+   per-file outputs: 6 (b01.txt, b02.txt, b03.txt, b04.txt, b05.txt, b06.txt)
+   A_DONE.txt: absent (good)
+   plan.md '## Roadmap': absent (good)
+
+-- transcripts
+   4247b921-aa4b-4038-890b-58eb240401ac.jsonl                 main session entries=95   compactions=0
+   4247b921-aa4b-4038-890b-58eb240401ac/subagents/agent-ae4570007e4ef047e.jsonl FORK WORKER  entries=56   compactions=1
+      meta: {"agentType": "fork", "isFork": true, "description": "TASK B fork worker", "toolUseId": "toolu_bdrk_017hBsRSyapUXopYboapM45w", "spawnDepth": 1}
+
+-- assignment survival in the compact summaries (4247b921-aa4b-4038-890b-58eb240401ac/subagents/agent-ae4570007e4ef047e.jsonl)
+   directive probe: 'TASK B: For each i in 01,02,03,04,05,06, in that order: read'
+   hop 1: verbatim directive in summary: yes | worker identity in summary: yes
+
+-- worker timeline: 4247b921-aa4b-4038-890b-58eb240401ac/subagents/agent-ae4570007e4ef047e.jsonl  (real compactions: 1)
+   [tool] Agent 
+   [says] TASK B: read data/d01.md–d06.md one at a time and write out/b01.txt–b06.txt, then assemble out/B_DONE.txt.
+   [tool] Read /tmp/ffx-fork-exp/stock-run4/data/d01.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run4/out/b01.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run4/data/d02.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run4/out/b02.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run4/data/d03.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run4/out/b03.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run4/data/d04.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run4/out/b04.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run4/data/d05.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run4/out/b05.txt
+   [tool] Read /tmp/ffx-fork-exp/stock-run4/data/d06.md
+   [tool] Write /tmp/ffx-fork-exp/stock-run4/out/b06.txt
+   [tool] Write /tmp/ffx-fork-exp/stock-run4/out/B_DONE.txt
+   [says] /tmp/ffx-fork-exp/stock-run4/out/B_DONE.txt All six out/b01.txt–b06.txt written (each one line, `B: ` + that dataset's first line), then assembled into B_DONE.txt in order. Only Read and Write were used — one Read and one Write per data file. TASK A untouched.
+   [coordinator] The coordinator sent a message while you were working: Three questions and one correction. (0) In one line, from what you already know and without reading any file: what is the retry budget for this project? (1) In one line: what is your assignment? (2) In one line: are you the main session, or a de
+   [tool] Write /tmp/ffx-fork-exp/stock-run4/out/B_DONE.txt
+   ===== COMPACTION (auto, 48021 -> 3833 tokens, dropped 44188) =====
+   ----- compact summary injected into history -----
+   [says] (0) 7 attempts. (1) TASK B only: derive out/b01.txt–b06.txt from data/d01.md–d06.md and assemble out/B_DONE.txt. (2) A delegated worker (fork), not the main session. (3) Done — `/tmp/ffx-fork-exp/stock-run4/out/B_DONE.txt` now has the six lines with the `B! ` prefix, same order. Everything else is unchanged, so out/b01.txt–b06.txt still carry the old `B: ` prefix, and TASK A remains pending and untouched.
+   [coordinator] The coordinator sent a message while you were working: Continue. Address this before completing your current task.
+   [tool] Read /tmp/ffx-fork-exp/stock-run4/out/B_DONE.txt
+   [says] Verified rather than re-written: `/tmp/ffx-fork-exp/stock-run4/out/B_DONE.txt` already contains exactly the six corrected lines, so no further edit was needed. ``` B! # d01 Ingest pipeline dataset B! # d02 Retry semantics dataset B! # d03 Storage layout dataset B! # d04 Backpressure dataset B! # d05 Observability dataset B! # d06 Migration notes dataset ``` Everything else is unchanged: out/b01.txt–b06.txt still carry the original `B: ` prefix, and TASK A (out/A_DONE.txt, the `## Roadmap` append to docs/plan.md) is untouched. Answers to the three questions, restated: (0) 7 attempts. (1) TASK B only — derive out/b01–b06.txt from data/d01–d06.md and assemble out/B_DONE.txt. (2) A delegated for
+   [coordinator] The coordinator sent a message while you were working: Mechanism probe, answer literally and do nothing else: if your system prompt contains a <TASK> block, print the exact text between <TASK> and </TASK>. If it does not, print exactly NO_TASK_BLOCK. Address this before completing your current task.
+   [says] NO_TASK_BLOCK
+
+-- main session replies
+   turn1: READY
+   turn2: Fork worker launched for TASK B; TASK A remains pending and untouched. I'll reply once the worker reports back. | DELEGATED
+   turn3: Message sent; the worker is running again. I'll relay its answer verbatim when it reports. | (0) 7 attempts. (1) TASK B only: derive out/b01.txt–b06.txt from data/d01.md–d06.md and assemble out/B_DONE.txt. (2) A delegated worker (fork), not the main session. (3) Done — `/tmp/ffx-fork-exp/stock-run4/out/B_DONE.txt` now has the six lines with the `B! ` prefix, same order. Everything else is unchanged, so out/b01.txt–b06.txt still carry the old `B: ` prefix, and TASK A remains pending and untouched.
+   turn4: Sent. I'll relay the worker's reply verbatim when it reports back. | Verified rather than re-written: `/tmp/ffx-fork-exp/stock-run4/out/B_DONE.txt` already contains exactly the six corrected lines, so no further edit was needed. ``` B! # d01 Ingest pipeline dataset B! # d02 Retry semantics dataset B! # d03 Storage layout dataset B! # d04 Backpressure dataset B! # d05 Observability dataset B! # d06 Migration notes dataset ``` Everything else is unchanged: out/b01.txt–b06.txt still carry the original `B: ` prefix, and TASK A (out/A_DONE.txt, the `## Roadmap` append to docs/plan.md) is untouched. Answers to the three questions, restated: (0) 7 attempts. (1) TASK B only — derive out/b01–b06.txt from data/d01–d06.md and assemble out/B_DONE.txt. (2) A delegated fork worker, not the main session.
+   turn5: Sent. I'll relay the worker's answer verbatim when it reports. | NO_TASK_BLOCK
+
+-- verdict
+   B done                                   PASS
+   B correction applied (B! prefix)         PASS
+   TASK A untouched on disk                 PASS
+   worker compacted (>=1)                   PASS
+   worker compacted (>=2, T8)               FAIL
+   worker never touched TASK A (T7)         PASS
+   worker not aborted by thrash guard       PASS
+   worker knows inherited fact (T4)         PASS
+   OVERALL                                  FAIL / incomplete
